@@ -64,6 +64,13 @@ jobs:
           -qt-libjpeg ^
           -qt-libpng ^
           -qt-webp ^
+          -nomake examples ^
+          -nomake tests ^
+          -no-compile-examples ^
+          -no-dbus ^
+          -no-accessibility ^
+          -qt-doubleconversion ^
+          -no-icu ^
           -openssl-linked OPENSSL_LIBS="-lUser32 -lAdvapi32 -lGdi32 -lCrypt32 -lWs2_32" OPENSSL_PREFIX="${{ env.openssl_location }}" OPENSSL_LIBS_RELEASE="-llibcrypto64MD -llibssl64MD" OPENSSL_LIBS_DEBUG="-llibcrypto64MDd -llibssl64MDd" ^
           -I "${{ env.openssl_location }}\include" ^
           -L "${{ env.openssl_location }}\lib\VC\x64\MD" ^
@@ -80,20 +87,54 @@ jobs:
           -no-direct2d ^
           -no-eglfs ^
           -no-ico ^
+          -no-sql-db2 ^
+          -no-sql-ibase ^
+          -no-sql-mysql ^
+          -no-sql-oci ^
+          -no-sql-odbc ^
+          -no-sql-psql ^
+          -no-sql-sqlite ^
+          -no-sql-sqlite2 ^
+          -no-sql-tds ^
+          -no-tiff ^
+          -no-feature-sqlmodel ^
           -no-feature-testlib_selfcover ^
+          -no-feature-textmarkdownreader ^
+          -no-feature-textmarkdownwriter ^
+          -no-feature-textodfwriter ^
+          -no-feature-printer ^
+          -skip qt3d ^
+          -skip qtactiveqt ^
           -skip qtandroidextras ^
           -skip qtcanvas3d ^
           -skip qtcharts ^
           -skip qtconnectivity ^
           -skip qtdatavis3d ^
           -skip qtdeclarative ^
+          -skip qtdoc ^
+          -skip qtfeedback ^
+          -skip qtgamepad ^
+          -skip qtgraphicaleffects ^
+          -skip qtlocation ^
+          -skip qtlottie ^
+          -skip qtmacextras ^
+          -skip qtnetworkauth ^
+          -skip qtpim ^
+          -skip qtpurchasing ^
           -skip qtqa ^
           -skip qtquick3d ^
           -skip qtquickcontrols ^
           -skip qtquickcontrols2 ^
           -skip qtquicktimeline ^
           -skip qtremoteobjects ^
+          -skip qtrepotools ^
+          -skip qtscript ^
+          -skip qtscxml ^
+          -skip qtsensors ^
+          -skip qtserialbus ^
+          -skip qtserialport ^
           -skip qtspeech ^
+          -skip qtsystems ^
           -skip qttranslations ^
           -skip qtvirtualkeyboard ^
           -skip qtwayland ^
@@ -101,7 +142,10 @@ jobs:
           -skip qtwebengine ^
           -skip qtwebglplugin ^
           -skip qtwebsockets ^
-          -skip qtwebview
+          -skip qtwebview ^
+          -skip qtwinextras ^
+          -skip qtx11extras ^
+          -skip qtxmlpatterns
 
       - name: Build Qt ${{ env.Qt_patch_version }}
         working-directory: C:/qt-everywhere-src-${{ env.Qt_patch_version }}
@@ -111,7 +155,28 @@ jobs:
         working-directory: C:/qt-everywhere-src-${{ env.Qt_patch_version }}
         run: nmake install
 
-      - name: List files
+      - name: Copy the config file
+        shell: cmd
+        run: copy "C:\qt-everywhere-src-${{ env.Qt_patch_version }}\config.summary" "C:\Qt\Qt-${{ env.Qt_patch_version }}\"
+
+      - name: Copy OpenSSL files
         shell: cmd
         run: |
-          dir /S "C:\Qt\Qt-${{ env.Qt_patch_version }}\bin"
+          copy "${{ env.openssl_location }}\bin\libcrypto-3-x64.dll" "C:\Qt\Qt-${{ env.Qt_patch_version }}\bin"
+          copy "${{ env.openssl_location }}\bin\libssl-3-x64.dll" "C:\Qt\Qt-${{ env.Qt_patch_version }}\bin"
+          
+      - name: Upload Qt library to GitHub repo
+        working-directory: C:/
+        env:
+          PAT: ${{ secrets.PAT }}
+        shell: cmd
+        run: |
+          git config --global user.name "${{ github.repository_owner }}"
+          git config --global user.email "${{ github.repository_owner }}@example.com"
+          git init
+          git add Qt
+          git commit -m "Initial commit"
+          git branch -M main
+          git remote add origin https://"%PAT%"@github.com/${{ github.repository_owner }}/Citra-Qt-Win-Shared.git
+          git remote -v
+          git push origin main
