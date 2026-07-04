@@ -102,7 +102,6 @@ jobs:
           -no-feature-textmarkdownreader ^
           -no-feature-textmarkdownwriter ^
           -no-feature-textodfwriter ^
-          -no-feature-printer ^
           -skip qt3d ^
           -skip qtactiveqt ^
           -skip qtandroidextras ^
